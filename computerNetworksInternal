@@ -1,0 +1,88 @@
+import java.util.*;
+public class CRC{
+    static String polynomialToBinary(String polynomial){
+        polynomial=polynomial.replace(" ","");
+        String[] terms=polynomial.split("\\+");
+        int degree=0;
+        for(String term:terms){
+            if(term.equals("1")){
+                degree=Math.max(degree,0);
+            }else if(term.equals("x")){
+                degree=Math.max(degree,1);
+            }else if(term.startsWith("x^")){
+                int d=Integer.parseInt(term.substring(2));
+                degree=Math.max(degree,d);
+            }
+        }
+        char[] bits=new char[degree+1];
+        Arrays.fill(bits,'0');
+        for(String term:terms){
+            if(term.equals("1")){
+                bits[degree]='1';
+            }else if(term.equals("x")){
+                bits[degree-1]='1';
+            }else if(term.startsWith("x^")){
+                int d=Integer.parseInt(term.substring(2));
+                bits[degree-d]='1';
+            }
+        }
+        return new String(bits);
+    }
+    static String divide(String data,String polynomial){
+        char[] bits=data.toCharArray();
+        int n=polynomial.length();
+        for(int i=0;i<=bits.length-n;i++){
+            if(bits[i]=='1'){
+                for(int j=0;j<n;j++){
+                    if(bits[i+j]==polynomial.charAt(j)){
+                        bits[i+j]='0';
+                    }else{
+                        bits[i+j]='1';
+                    }
+                }
+            }
+        }
+        return new String(bits,bits.length-n+1,n-1);
+    }
+    public static void main(String[] args){
+        Scanner sc=new Scanner(System.in);
+        System.out.print("Enter bit Stream:");
+        String data=sc.next();
+        sc.nextLine();
+        System.out.print("Enter Polynomial: ");
+        String polynomial=sc.nextLine();
+        String polyBits=polynomialToBinary(polynomial);
+        int degree=polyBits.length()-1;
+        System.out.println("\n SENDER SIDE ");
+        System.out.println("Original Bit Stream: "+data);
+        System.out.println("Polynomial: "+polynomial);
+        System.out.println("Polynomial in bits: "+polyBits);
+        System.out.println("Degree: "+degree);
+        StringBuilder newData=new StringBuilder(data);
+        for(int i=0;i<degree;i++){
+            newData.append('0');
+        }
+        System.out.println("Data after appending zeroes: "+newData);
+        String remainder=divide(newData.toString(),polyBits);
+        System.out.println("CRC Remainder: "+remainder);
+        String codeWord=data+remainder;
+        System.out.println("\n RECEIVER SIDE");
+        System.out.println("Enter Received codeword: ");
+        String received =sc.next();
+        String receiverRemainder=divide(received,polyBits);
+        System.out.println("Received codeword : "+received);
+        System.out.println("Remainder: "+receiverRemainder);
+        boolean error=false;
+        for(int i=0;i<receiverRemainder.length();i++){
+            if(receiverRemainder.charAt(i)=='1'){
+                error=true;
+                break;
+            }
+        }
+        if(error){
+            System.out.println("Result:Error Detected");
+        }else{
+            System.out.println("Result:Data received correctly.No Error");
+        }
+    }
+}
