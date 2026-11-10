@@ -1,0 +1,44 @@
+import java.util.Scanner;
+public class SelectiveRepeat{
+  public static void main(String[] args){
+    Scanner sc=new Scanner(System.in);
+    System.out.println("=====SELECTIVE REPEAT ARQ=====");
+    System.out.println("Enter number of frames:");
+    int n=sc.nextInt();
+    System.out.println("Enter window size:");
+    int windowSize=sc.nextInt();
+    System.out.println("Enter frame number to be lost:");
+    int lostFrame=sc.nextInt();
+    int i=1;
+    while(i<n){
+      System.out.println("\n Sender Window:");
+      int end=Math.min(i+windowSize-1,n);
+      for(int j=i;j<=end;j++){
+        System.out.println("Sending Frame"+j);
+      }
+      if(lostFrame>=1 && lostFrame<end){
+        System.out.println("\n Frame"+lostFrame+" is lost!");
+        System.out.println("Receiver did not receive Frame"+lostFrame);
+        for(int j=i;j<end;j++){
+          if(j!=lostFrame){
+            System.out.println("Receiver Received Frame"+j);
+            System.out.println("Receiver send Ack"+j);
+          }
+        }
+        System.out.println("\n Selective Repeat: Retransmitting Frame"+lostFrame);
+        System.out.println("Retransmitting Frame"+lostFrame);
+        System.out.println("Receiver received frame"+lostFrame);
+        System.out.println("Receiver sends Ack "+lostFrame);
+        i=end+1;
+        lostFrame=-1;
+      }else{
+        System.out.println("\n All frames received Successfully");
+        for(int j=i;j<=end;j++){
+          System.out.println("Receiver sends Ack "+j);
+        }
+        i=end;
+      }
+    }
+    System.out.println("\n TRANSMISSION COMPLETE");
+  }
+}
